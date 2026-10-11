@@ -8,15 +8,22 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build Java') {
             steps {
                 sh 'mvn clean package'
             }
         }
 
-        stage('Verify Artifact') {
+        stage('Build Docker Image') {
             steps {
-                sh 'ls -lh target/*.jar'
+                sh 'docker build -t jenkins-lab-app:latest .'
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh 'kubectl apply -f /home/general484/vle7/deployment.yaml'
+                sh 'kubectl rollout status deployment/myapp --timeout=120s'
             }
         }
     }
